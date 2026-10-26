@@ -1356,6 +1356,18 @@ esac
     export PATH="$PATH:$WARP_PATH_APPEND"
     unset WARP_PATH_APPEND
   fi
+  # System profiles can discard the runtime commands inherited from the container entrypoint.
+  if [[ "${WARP_RUNTIME_BIN:-}" == /* && "$WARP_RUNTIME_BIN" != *:* \
+      && -d "$WARP_RUNTIME_BIN" && "$(command -p uname -s)" == Linux ]]; then
+    local -a runtime_path=("$WARP_RUNTIME_BIN")
+    local runtime_entry=""
+    for runtime_entry in "${path[@]}"; do
+      if [[ "$runtime_entry" != "$WARP_RUNTIME_BIN" ]]; then
+        runtime_path+=("$runtime_entry")
+      fi
+    done
+    export PATH="${(j.:.)runtime_path}"
+  fi
 
   local -a shell_plugins
 

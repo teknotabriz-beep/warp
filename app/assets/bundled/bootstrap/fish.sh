@@ -44,6 +44,19 @@ if test -n "$WARP_PATH_APPEND"
     set -gx --path PATH "$PATH:$WARP_PATH_APPEND"
     set -e WARP_PATH_APPEND
 end
+# System profiles can discard the runtime commands inherited from the container entrypoint.
+if string match -q '/*' -- "$WARP_RUNTIME_BIN"
+    and not string match -q '*:*' -- "$WARP_RUNTIME_BIN"
+    and test -d "$WARP_RUNTIME_BIN"
+    and test (command uname -s) = Linux
+    set -l runtime_path "$WARP_RUNTIME_BIN"
+    for runtime_entry in $PATH
+        if test "$runtime_entry" != "$WARP_RUNTIME_BIN"
+            set -a runtime_path "$runtime_entry"
+        end
+    end
+    set -gx PATH $runtime_path
+end
 
 function warp_send_json_message
     # Sends a message to the controlling terminal as a DSC control sequence.

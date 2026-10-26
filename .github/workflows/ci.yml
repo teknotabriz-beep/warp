@@ -722,10 +722,13 @@ jobs:
       - name: Install ShellCheck
         uses: ConorMacBride/install-package@3e7ad059e07782ee54fa35f827df52aae0626f30 # v1
         with:
-          apt: shellcheck
+          apt: shellcheck zsh fish
 
       - name: Run ShellCheck
         run: ./script/lint_shellcheck --ci
+
+      - name: Test runtime command PATH handoff
+        run: python3 script/test_runtime_bin_handoff.py
 
       - name: Run PSScriptAnalyzer (PowerShell Lint)
         run: ./script/lint_powershell -ci
